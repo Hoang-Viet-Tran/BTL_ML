@@ -1,23 +1,33 @@
 import pandas as pd
 import numpy as np
 
-def preprocess_df(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Làm sạch dữ liệu:
-    - clone dataframe
-    - xử lý missing values
-    - chuyển các kiểu dữ liệu cơ bản
-    """
-    df = df.copy()
+def preprocess_df(df):
+    # giữ các cột cần thiết
+    keep_cols = [
+        "tconst",
+        "primaryTitle",
+        "startYear",
+        "runtimeMinutes",
+        "genres",
+        "averageRating",
+        "numVotes"
+    ]
 
-    # Drop duplicate
-    df.drop_duplicates(inplace=True)
+    df = df[keep_cols].copy()
 
-    # Fill NA
-    for col in df.columns:
-        if df[col].dtype == "object":
-            df[col] = df[col].fillna("unknown")
-        else:
-            df[col] = df[col].fillna(0)
+    # convert kiểu dữ liệu
+    df["startYear"] = pd.to_numeric(df["startYear"], errors="coerce")
+    df["runtimeMinutes"] = pd.to_numeric(df["runtimeMinutes"], errors="coerce")
+    df["averageRating"] = pd.to_numeric(df["averageRating"], errors="coerce")
+    df["numVotes"] = pd.to_numeric(df["numVotes"], errors="coerce")
+
+    # drop null
+    df = df.dropna()
+
+    # ✅ TẠO LABEL
+    df["is_success"] = (
+        (df["averageRating"] >= 7.0) &
+        (df["numVotes"] >= 10000)
+    ).astype(int)
 
     return df

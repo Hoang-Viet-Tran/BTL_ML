@@ -3,20 +3,22 @@ import os
 import h5py
 from sklearn.preprocessing import StandardScaler
 
-def extract_features(df, label_column="success"):
-    """
-    Tạo vector đặc trưng đơn giản từ dữ liệu số.
-    """
-    numeric_cols = df.select_dtypes(include=np.number).columns.tolist()
-
+def extract_features(df, label_column="is_success"):
     if label_column not in df.columns:
-        raise ValueError(f"Label column '{label_column}' not found")
+        raise ValueError(
+            f"Label column '{label_column}' not found. "
+            f"Did you forget to run preprocess_df()?"
+        )
 
+    feature_cols = [
+        "startYear",
+        "runtimeMinutes",
+        "averageRating",
+        "numVotes"
+    ]
+
+    X = df[feature_cols].values
     y = df[label_column].values
-    X = df[numeric_cols].drop(columns=[label_column], errors="ignore").values
-
-    scaler = StandardScaler()
-    X = scaler.fit_transform(X)
 
     return X, y
 
