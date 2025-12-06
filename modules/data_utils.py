@@ -1,24 +1,19 @@
 import os
 import pandas as pd
 
-def load_raw_data(data_path: str):
-    """
-    Tải dữ liệu thô từ thư mục (csv hoặc tsv).
-    """
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Data path not found: {data_path}")
+def load_raw_data(data_path="data"):
+    files = [f for f in os.listdir(data_path) if f.endswith(".tsv.gz")]
 
-    files = [f for f in os.listdir(data_path) if f.endswith(('.csv', '.tsv'))]
-    if not files:
-        raise FileNotFoundError("No CSV/TSV files found in dataset folder")
+    if len(files) == 0:
+        raise FileNotFoundError("No IMDb TSV files found in data folder")
 
     dfs = []
+
     for f in files:
-        full_path = os.path.join(data_path, f)
-        if f.endswith(".csv"):
-            df = pd.read_csv(full_path)
-        else:
-            df = pd.read_csv(full_path, sep="\t")
+        file_path = os.path.join(data_path, f)
+        print("Loading:", file_path)
+
+        df = pd.read_csv(file_path, sep="\t", compression="gzip", low_memory=False)
         dfs.append(df)
 
-    return pd.concat(dfs, ignore_index=True)
+    return dfs
